@@ -8,9 +8,14 @@ body {
 }
 
 .task-card {
-  margin: 0 auto;
+  margin: 10px auto;
 }
 
 .task-card:hover {
   cursor: grab;
+}
+
+.sortableContainer {
+  width: 100%;
+  height: 100%;
 }
