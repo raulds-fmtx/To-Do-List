@@ -12,6 +12,30 @@ function generateTaskId() {
     return `task${nextId}`;
 }
 
+function evaluateTaskDeadline(taskCard,parentId) {
+    // Get difference between due date and todays date
+    let dueDate = dayjs(taskCard.children()[1].children[0].textContent);
+    let today = dayjs();
+    let diff = dueDate.diff(today,'days');
+    let button = $(taskCard.children()[2].children[0]);
+    // Make background conditional upon the difference
+    if (parentId === 'done-cards') {
+        taskCard.removeClass('bg-warning bg-light bg-danger');
+        taskCard.addClass('bg-success text-white');
+        button.removeClass('border-white');
+    } else if (diff === 0 && parentId !== 'done-cards') {
+        taskCard.removeClass('bg-success text-white');
+        taskCard.addClass('bg-warning');
+    } else if (diff > 0 && parentId !== 'done-cards') {
+        taskCard.removeClass('bg-success text-white');
+        taskCard.addClass('bg-light');
+    } else {
+        taskCard.removeClass('bg-success');
+        taskCard.addClass('bg-danger text-white');
+        button.addClass('border-white');
+    }
+}
+
 // Todo: create a function to create a task card
 function createTaskCard(task) {
     // Create containers
@@ -21,7 +45,7 @@ function createTaskCard(task) {
     let cardFooter = $('<div class="card-footer"></div>')
     // Generate text elements
     cardHeader.append($('<h5 class="card-title"></h4>').text(task.title));
-    cardBody.append($('<p class="card-text"></p>').text(task.date));
+    cardBody.append($('<p class="card-text due-date"></p>').text(task.date));
     cardBody.append($('<p class="card-text"></p>').text(task.description));
     cardFooter.append($('<button type="button" class="btn btn-danger delete-task"></button>').text('Delete Task'));
     // Construct and add card to DOM
@@ -29,6 +53,8 @@ function createTaskCard(task) {
     card.append(cardBody);
     card.append(cardFooter);
     card.addClass(task.parentId);
+    // Set background color
+    evaluateTaskDeadline($(card),task.parentId);
     $(`#${task.parentId}`).append(card);
 }
 
@@ -108,6 +134,8 @@ function handleDrop(event,ui) {
     // Store location of task card
     taskList[taskIndex] = JSON.stringify(task);
     localStorage.setItem('tasks',JSON.stringify(taskList));
+    // Change background color
+    evaluateTaskDeadline(ui.item,task.parentId);
 }
 
 // Todo: when the page loads, render the task list, add event listeners, make lanes droppable, and make the due date field a date picker
