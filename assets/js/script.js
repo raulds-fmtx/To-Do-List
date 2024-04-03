@@ -100,31 +100,37 @@ function handleDeleteTask(event){
 
 // Todo: create a function to handle dropping a task into a new status lane
 function handleDrop(event,ui) {
-    console.log('dropped');
-    console.log($(this).attr('id'));
+    // Get the received task card information
+    let taskIndex = taskList.findIndex((element) => JSON.parse(element).id == ui.item.attr('id'));
+    let task = JSON.parse(taskList[taskIndex]);
+    // Change location of task card
+    task.parentId = $(this).attr('id');
+    // Store location of task card
+    taskList[taskIndex] = JSON.stringify(task);
+    localStorage.setItem('tasks',JSON.stringify(taskList));
 }
 
 // Todo: when the page loads, render the task list, add event listeners, make lanes droppable, and make the due date field a date picker
 $(document).ready(function () {
+    // Enable Date Picker
     $("#taskDueDate").datepicker();
-    
+    // Render stored tasks
     renderTaskList();
-
+    // Add click event listener for task submission
     $('#submit-task').on('click', handleAddTask);
+    // Delegate event lister for task deletion
     $(document).on('click', '.delete-task', handleDeleteTask);
-
+    // Enable sortable card containers
     $('#todo-cards').sortable({
         revert: 'invalid',
         connectWith: '#in-progress-cards,#done-cards',
         receive: handleDrop
     });
-
     $('#in-progress-cards').sortable({
         revert: 'invalid',
         connectWith: '#todo-cards,#done-cards',
         receive: handleDrop
     });
-
     $('#done-cards').sortable({
         revert: 'invalid',
         connectWith: '#todo-cards,#in-progress-cards',
